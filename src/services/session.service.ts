@@ -1,4 +1,3 @@
-import { apiClient } from './api';
 import type {
   CreateSessionRequestDto,
   CreateSessionResponseDto,
@@ -6,8 +5,11 @@ import type {
   SubmitAnswerRequestDto,
   SubmitAnswerResponseDto,
 } from '@/types';
+import { apiClient } from './api';
 
-export async function createSession(dto: CreateSessionRequestDto): Promise<CreateSessionResponseDto> {
+export async function createSession(
+  dto: CreateSessionRequestDto
+): Promise<CreateSessionResponseDto> {
   const res = await apiClient.post<CreateSessionResponseDto>('/sessions', dto);
   return res.data;
 }

@@ -41,15 +41,15 @@ npm run test:e2e   # Playwright E2E 테스트
 
 ## 기술 스택
 
-| 구분 | 선택 | 이유 |
-|------|------|------|
-| Framework | React 18 + TypeScript | 요구사항 |
-| Routing | React Router v7 | SPA 표준 라우팅 |
-| 상태관리 | Zustand v5 | 경량, persist 미들웨어로 세션 복구 |
-| HTTP | Axios | 인터셉터로 X-Session-Token 일괄 주입 |
-| Styling | Tailwind CSS v4 | 유틸리티 퍼스트, 빠른 반응형 구현 |
-| Mock | MSW v2 | 네트워크 레벨 인터셉트로 실API코드 재사용 |
-| Test | Vitest + RTL + Playwright | 단위/통합/E2E 풀커버 |
+| 구분      | 선택                      | 이유                                      |
+| --------- | ------------------------- | ----------------------------------------- |
+| Framework | React 18 + TypeScript     | 요구사항                                  |
+| Routing   | React Router v7           | SPA 표준 라우팅                           |
+| 상태관리  | Zustand v5                | 경량, persist 미들웨어로 세션 복구        |
+| HTTP      | Axios                     | 인터셉터로 X-Session-Token 일괄 주입      |
+| Styling   | Tailwind CSS v4           | 유틸리티 퍼스트, 빠른 반응형 구현         |
+| Mock      | MSW v2                    | 네트워크 레벨 인터셉트로 실API코드 재사용 |
+| Test      | Vitest + RTL + Playwright | 단위/통합/E2E 풀커버                      |
 
 ---
 
@@ -75,11 +75,13 @@ src/
 ## 핵심 구현 포인트
 
 ### 세션 관리
+
 - `POST /sessions`로 발급받은 `sessionToken`을 Zustand `persist` 미들웨어가 localStorage에 저장
 - 페이지 재진입 시 저장된 토큰으로 `GET /sessions` 호출 → 이어서 진행 가능
 - 토큰 입력 UI로 다른 기기/브라우저에서 발급받은 세션도 재개 가능
 
 ### 조건부 분기 (nextQuestion)
+
 - `singleChoice`: 선택한 option의 `nextQuestionId`
 - `multiChoice` / `text`: 문항의 `nextQuestionId` (직접 지정)
 - `next[]` 조건 배열 (예: q5_example): 이전 답변을 순회하여 `anySelectedIn` 평가 후 분기
@@ -91,27 +93,29 @@ q5_example
 ```
 
 ### MSW 모킹
+
 - 실제 API 클라이언트 코드를 그대로 사용하며 네트워크만 인터셉트
 - 인메모리 세션 DB로 답변 누적, 분기 계산, 에러 코드 재현 (400/401/403/404)
 - `VITE_MOCK_API=false` 한 줄로 실 백엔드 전환
 
 ### 에러 처리
-| 코드 | 상황 | 처리 |
-|------|------|------|
-| 400 | 잘못된 답변 타입 / 잘못된 문항 | 인라인 에러 메시지 |
-| 401 | 토큰 없음 / 미매칭 | 홈 리다이렉트 + 세션 초기화 |
-| 403 | 완료된 세션에 재답변 | 완료 페이지 리다이렉트 |
-| 404 | 존재하지 않는 문항 | 인라인 에러 + 재시도 버튼 |
-| Network | 서버 응답 없음 | 인라인 에러 + 재시도 버튼 |
+
+| 코드    | 상황                           | 처리                        |
+| ------- | ------------------------------ | --------------------------- |
+| 400     | 잘못된 답변 타입 / 잘못된 문항 | 인라인 에러 메시지          |
+| 401     | 토큰 없음 / 미매칭             | 홈 리다이렉트 + 세션 초기화 |
+| 403     | 완료된 세션에 재답변           | 완료 페이지 리다이렉트      |
+| 404     | 존재하지 않는 문항             | 인라인 에러 + 재시도 버튼   |
+| Network | 서버 응답 없음                 | 인라인 에러 + 재시도 버튼   |
 
 ---
 
 ## API 명세 (요약)
 
-| 메서드 | 엔드포인트 | 설명 |
-|--------|-----------|------|
-| GET | `/surveys/:surveyId` | 설문 전체 조회 |
-| GET | `/surveys/:surveyId/questions/:questionId` | 단일 문항 조회 |
-| POST | `/sessions` | 세션 생성 |
-| GET | `/sessions` | 세션 조회 (X-Session-Token 필요) |
-| POST | `/sessions/answers` | 답변 제출 (X-Session-Token 필요) |
+| 메서드 | 엔드포인트                                 | 설명                             |
+| ------ | ------------------------------------------ | -------------------------------- |
+| GET    | `/surveys/:surveyId`                       | 설문 전체 조회                   |
+| GET    | `/surveys/:surveyId/questions/:questionId` | 단일 문항 조회                   |
+| POST   | `/sessions`                                | 세션 생성                        |
+| GET    | `/sessions`                                | 세션 조회 (X-Session-Token 필요) |
+| POST   | `/sessions/answers`                        | 답변 제출 (X-Session-Token 필요) |

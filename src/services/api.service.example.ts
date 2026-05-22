@@ -12,13 +12,13 @@
  */
 
 import type {
-  SurveyResponseDto,
-  QuestionResponseDto,
   CreateSessionRequestDto,
   CreateSessionResponseDto,
   GetSessionResponseDto,
+  QuestionResponseDto,
   SubmitAnswerRequestDto,
   SubmitAnswerResponseDto,
+  SurveyResponseDto,
 } from '@/types';
 
 const API_BASE_URL = 'http://localhost:3000';
@@ -42,9 +42,7 @@ export async function getQuestion(
   surveyId: string,
   questionId: string
 ): Promise<QuestionResponseDto> {
-  const response = await fetch(
-    `${API_BASE_URL}/surveys/${surveyId}/questions/${questionId}`
-  );
+  const response = await fetch(`${API_BASE_URL}/surveys/${surveyId}/questions/${questionId}`);
   if (!response.ok) throw new Error('Failed to fetch question');
   return response.json();
 }
@@ -70,9 +68,7 @@ export async function createSession(
  * GET /sessions
  * Header: X-Session-Token
  */
-export async function getSession(
-  sessionToken: string
-): Promise<GetSessionResponseDto> {
+export async function getSession(sessionToken: string): Promise<GetSessionResponseDto> {
   const response = await fetch(`${API_BASE_URL}/sessions`, {
     headers: { [SESSION_TOKEN_HEADER]: sessionToken },
   });

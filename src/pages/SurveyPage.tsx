@@ -1,14 +1,14 @@
-import { useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSurveyStore } from '@/store/surveyStore';
-import { fetchQuestion } from '@/services/survey.service';
-import { submitAnswer } from '@/services/session.service';
-import { setSessionToken } from '@/services/api';
-import { QuestionCard } from '@/components/survey/QuestionCard';
-import { ProgressBar } from '@/components/survey/ProgressBar';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { ErrorMessage } from '@/components/common/ErrorMessage';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { ProgressBar } from '@/components/survey/ProgressBar';
+import { QuestionCard } from '@/components/survey/QuestionCard';
+import { setSessionToken } from '@/services/api';
+import { submitAnswer } from '@/services/session.service';
+import { fetchQuestion } from '@/services/survey.service';
+import { useSurveyStore } from '@/store/surveyStore';
 import type { Question, SessionAnswer } from '@/types';
+import { useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type AnswerPayload = { optionId?: string; optionIds?: string[]; text?: string } | null;
 
@@ -130,7 +130,9 @@ export function SurveyPage() {
       <div className="mx-auto w-full max-w-xl">
         <header className="mb-6">
           <p className="text-xs font-medium uppercase tracking-wide text-blue-600">설문조사</p>
-          <h1 className="mt-1 text-lg font-bold text-gray-900">{surveyTitle ?? '유닛블랙 지원 동기 설문'}</h1>
+          <h1 className="mt-1 text-lg font-bold text-gray-900">
+            {surveyTitle ?? '유닛블랙 지원 동기 설문'}
+          </h1>
           <div className="mt-3">
             <ProgressBar answeredCount={answers.length} />
           </div>

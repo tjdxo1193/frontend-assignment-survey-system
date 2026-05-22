@@ -19,7 +19,9 @@ apiClient.interceptors.response.use(
       const status = err.response?.status;
       const serverMsg = err.response?.data?.message as string | undefined;
       const message =
-        serverMsg ?? (status ? ERROR_MESSAGES[status] : undefined) ?? '네트워크 오류가 발생했습니다. 다시 시도해 주세요.';
+        serverMsg ??
+        (status ? ERROR_MESSAGES[status] : undefined) ??
+        '네트워크 오류가 발생했습니다. 다시 시도해 주세요.';
       return Promise.reject(new Error(message));
     }
     return Promise.reject(new Error('네트워크 오류가 발생했습니다. 다시 시도해 주세요.'));

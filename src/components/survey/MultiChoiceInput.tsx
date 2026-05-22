@@ -53,7 +53,9 @@ export function MultiChoiceInput({ options, values, onChange, minSelect, maxSele
                 onChange={() => toggle(option.id)}
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className={`text-sm font-medium ${checked ? 'text-blue-700' : 'text-gray-700'}`}>
+              <span
+                className={`text-sm font-medium ${checked ? 'text-blue-700' : 'text-gray-700'}`}
+              >
                 {option.label}
               </span>
             </label>

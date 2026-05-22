@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { resolveNextQuestionId } from '@/utils/nextQuestion';
 import type { Question, SessionAnswer } from '@/types';
+import { resolveNextQuestionId } from '@/utils/nextQuestion';
+import { describe, expect, it } from 'vitest';
 
 const makeAnswer = (questionId: string, optionIds: string[]): SessionAnswer => ({
   questionId,

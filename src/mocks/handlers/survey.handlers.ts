@@ -1,5 +1,5 @@
-import { http, HttpResponse } from 'msw';
 import { SAMPLE_SURVEY } from '@/data/surveys.data';
+import { http, HttpResponse } from 'msw';
 
 const BASE = 'http://localhost:3000';
 

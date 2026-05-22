@@ -1,6 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
 import { useSurveyStore } from '@/store/surveyStore';
-import type { CreateSessionResponseDto, GetSessionResponseDto, SubmitAnswerResponseDto } from '@/types';
+import type {
+  CreateSessionResponseDto,
+  GetSessionResponseDto,
+  SubmitAnswerResponseDto,
+} from '@/types';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 const mockCreateRes: CreateSessionResponseDto = {
   sessionId: 'sid-1',
@@ -19,7 +23,12 @@ const mockGetRes: GetSessionResponseDto = {
     {
       questionId: 'q1',
       questionText: '우리 회사에 지원하는 주된 이유는?',
-      answer: { type: 'singleChoice', optionId: 'q1o2', label: '기술적 도전', submittedAt: '2025-01-01T00:00:00Z' },
+      answer: {
+        type: 'singleChoice',
+        optionId: 'q1o2',
+        label: '기술적 도전',
+        submittedAt: '2025-01-01T00:00:00Z',
+      },
     },
   ],
 };

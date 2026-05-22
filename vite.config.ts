@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import path from 'path'
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [tailwindcss(), react()],
@@ -20,4 +20,4 @@ export default defineConfig({
     css: true,
     include: ['src/**/*.test.{ts,tsx}'],
   },
-})
+});

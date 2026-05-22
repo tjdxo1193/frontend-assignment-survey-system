@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import type { Question } from '@/types';
-import { validateAnswer } from '@/utils/validation';
-import { SingleChoiceInput } from './SingleChoiceInput';
-import { MultiChoiceInput } from './MultiChoiceInput';
-import { TextInput } from './TextInput';
 import { Button } from '@/components/common/Button';
 import { ErrorMessage } from '@/components/common/ErrorMessage';
+import type { Question } from '@/types';
+import { validateAnswer } from '@/utils/validation';
+import { useState } from 'react';
+import { MultiChoiceInput } from './MultiChoiceInput';
+import { SingleChoiceInput } from './SingleChoiceInput';
+import { TextInput } from './TextInput';
 
 type AnswerPayload = { optionId?: string; optionIds?: string[]; text?: string } | null;
 
@@ -24,7 +24,8 @@ export function QuestionCard({ question, questionNumber, onSubmit, isSubmitting 
 
   const buildPayload = (): AnswerPayload => {
     if (question.type === 'singleChoice') return singleValue ? { optionId: singleValue } : null;
-    if (question.type === 'multiChoice') return multiValues.length > 0 ? { optionIds: multiValues } : null;
+    if (question.type === 'multiChoice')
+      return multiValues.length > 0 ? { optionIds: multiValues } : null;
     if (question.type === 'text') return textValue.trim() ? { text: textValue.trim() } : null;
     return null;
   };
@@ -52,14 +53,18 @@ export function QuestionCard({ question, questionNumber, onSubmit, isSubmitting 
         <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700">
           Q{questionNumber}
         </span>
-        {question.required && (
-          <span className="text-xs font-medium text-red-500">필수</span>
-        )}
+        {question.required && <span className="text-xs font-medium text-red-500">필수</span>}
       </div>
-      <h2 className="mb-5 text-base font-semibold leading-relaxed text-gray-900">{question.text}</h2>
+      <h2 className="mb-5 text-base font-semibold leading-relaxed text-gray-900">
+        {question.text}
+      </h2>
 
       {question.type === 'singleChoice' && question.options && (
-        <SingleChoiceInput options={question.options} value={singleValue} onChange={setSingleValue} />
+        <SingleChoiceInput
+          options={question.options}
+          value={singleValue}
+          onChange={setSingleValue}
+        />
       )}
       {question.type === 'multiChoice' && question.options && (
         <MultiChoiceInput
@@ -90,13 +95,20 @@ export function QuestionCard({ question, questionNumber, onSubmit, isSubmitting 
           {canSkip && (
             <Button
               variant="ghost"
-              onClick={() => { setValidationError(null); void onSubmit(null); }}
+              onClick={() => {
+                setValidationError(null);
+                void onSubmit(null);
+              }}
               disabled={isSubmitting}
             >
               건너뛰기
             </Button>
           )}
-          <Button onClick={() => void handleSubmit()} loading={isSubmitting} disabled={isSubmitting}>
+          <Button
+            onClick={() => void handleSubmit()}
+            loading={isSubmitting}
+            disabled={isSubmitting}
+          >
             다음
           </Button>
         </div>

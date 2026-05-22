@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { validateAnswer } from '@/utils/validation';
 import type { Question } from '@/types';
+import { validateAnswer } from '@/utils/validation';
+import { describe, expect, it } from 'vitest';
 
 const singleQ: Question = {
   id: 'q1',

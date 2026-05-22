@@ -1,8 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { CompletionPage } from '@/pages/CompletionPage';
 import { HomePage } from '@/pages/HomePage';
 import { SurveyPage } from '@/pages/SurveyPage';
-import { CompletionPage } from '@/pages/CompletionPage';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 
 function App() {
