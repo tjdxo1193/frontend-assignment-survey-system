@@ -3,7 +3,10 @@ import { test, expect } from '@playwright/test';
 test.describe('설문 시작 및 진행', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => { localStorage.removeItem('survey-session'); localStorage.removeItem('msw-mock-db'); });
+    await page.evaluate(() => {
+      localStorage.removeItem('survey-session');
+      localStorage.removeItem('msw-mock-db');
+    });
     await page.reload();
   });
 
@@ -38,9 +41,12 @@ test.describe('설문 시작 및 진행', () => {
 });
 
 test.describe('세션 재개', () => {
-  test('localStorage 토큰으로 세션을 이어서 진행한다', async ({ page }) => {
+  test('이탈 후 홈으로 돌아오면 이어서 진행할 수 있다', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => { localStorage.removeItem('survey-session'); localStorage.removeItem('msw-mock-db'); });
+    await page.evaluate(() => {
+      localStorage.removeItem('survey-session');
+      localStorage.removeItem('msw-mock-db');
+    });
     await page.reload();
 
     await page.getByRole('button', { name: '새 설문 시작하기' }).click();
@@ -50,17 +56,8 @@ test.describe('세션 재개', () => {
     await page.getByRole('button', { name: '다음' }).click();
     await expect(page.getByText('가장 매력적인 기술 영역은?')).toBeVisible({ timeout: 5000 });
 
-    const token = await page.evaluate(() => {
-      const raw = localStorage.getItem('survey-session');
-      if (!raw) return null;
-      return JSON.parse(raw)?.state?.sessionToken as string | null;
-    });
-    expect(token).toBeTruthy();
-
     await page.goto('/');
     await expect(page.getByText('진행 중인 세션이 있습니다.')).toBeVisible({ timeout: 3000 });
-    const inputValue = await page.locator('input[placeholder*="세션 토큰"]').inputValue();
-    expect(inputValue).toBe(token!);
 
     await page.getByRole('button', { name: '이어서 진행하기' }).click();
     await expect(page).toHaveURL('/survey');
@@ -69,15 +66,13 @@ test.describe('세션 재개', () => {
 });
 
 test.describe('오류 처리', () => {
-  test('잘못된 세션 토큰 입력 시 에러 메시지가 표시된다', async ({ page }) => {
+  test('세션 없이 /survey 접근 시 홈으로 리다이렉트된다', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => { localStorage.removeItem('survey-session'); localStorage.removeItem('msw-mock-db'); });
-    await page.reload();
-
-    const input = page.locator('input[placeholder*="세션 토큰"]');
-    await input.fill('invalid-token-xyz');
-    await page.getByRole('button', { name: '이어서 진행하기' }).click();
-
-    await expect(page.getByText('유효하지 않은 세션 토큰입니다.')).toBeVisible({ timeout: 5000 });
+    await page.evaluate(() => {
+      localStorage.removeItem('survey-session');
+      localStorage.removeItem('msw-mock-db');
+    });
+    await page.goto('/survey');
+    await expect(page).toHaveURL('/');
   });
 });

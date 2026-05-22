@@ -11,15 +11,17 @@ const SURVEY_ID = 'unitblack-join-survey';
 
 export function HomePage() {
   const navigate = useNavigate();
-  const { sessionToken, initSession, resumeSession, clearSession } = useSurveyStore();
+  const { sessionToken, isCompleted, initSession, resumeSession, clearSession } = useSurveyStore();
 
-  const [tokenInput, setTokenInput] = useState(sessionToken ?? '');
   const [isCreating, setIsCreating] = useState(false);
   const [isResuming, setIsResuming] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [resumeError, setResumeError] = useState<string | null>(null);
 
+  const hasPendingSession = sessionToken != null && !isCompleted;
+
   const handleNewSession = async () => {
+    clearSession();
     setCreateError(null);
     setIsCreating(true);
     try {
@@ -27,7 +29,6 @@ export function HomePage() {
         createSession({ surveyId: SURVEY_ID }),
         fetchSurvey(SURVEY_ID),
       ]);
-      setSessionToken(session.sessionToken);
       initSession(session, survey.title);
       navigate('/survey');
     } catch (err) {
@@ -38,31 +39,19 @@ export function HomePage() {
   };
 
   const handleResume = async () => {
-    const token = tokenInput.trim();
-    if (!token) {
-      setResumeError('세션 토큰을 입력해주세요.');
-      return;
-    }
+    if (!sessionToken) return;
     setResumeError(null);
     setIsResuming(true);
     try {
-      setSessionToken(token);
+      setSessionToken(sessionToken);
       const [session, survey] = await Promise.all([getSession(), fetchSurvey(SURVEY_ID)]);
-      useSurveyStore.setState({ sessionToken: token });
       resumeSession(session, survey.title);
       navigate(session.isCompleted ? '/complete' : '/survey');
     } catch (err) {
-      setSessionToken(sessionToken);
       setResumeError((err as Error).message);
     } finally {
       setIsResuming(false);
     }
-  };
-
-  const handleClearSession = () => {
-    clearSession();
-    setTokenInput('');
-    setResumeError(null);
   };
 
   return (
@@ -89,6 +78,21 @@ export function HomePage() {
         </div>
 
         <div className="space-y-4">
+          {hasPendingSession && (
+            <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
+              <h2 className="mb-1 text-sm font-semibold text-gray-700">이어서 진행</h2>
+              <p className="mb-4 text-xs text-gray-500">진행 중인 세션이 있습니다. 이어서 진행할 수 있습니다.</p>
+              {resumeError && (
+                <div className="mb-4">
+                  <ErrorMessage message={resumeError} />
+                </div>
+              )}
+              <Button onClick={() => void handleResume()} loading={isResuming} className="w-full">
+                이어서 진행하기
+              </Button>
+            </div>
+          )}
+
           <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
             <h2 className="mb-1 text-sm font-semibold text-gray-700">새 설문 시작</h2>
             <p className="mb-4 text-xs text-gray-500">새로운 세션을 생성하고 설문을 시작합니다.</p>
@@ -97,49 +101,13 @@ export function HomePage() {
                 <ErrorMessage message={createError} />
               </div>
             )}
-            <Button onClick={() => void handleNewSession()} loading={isCreating} className="w-full">
-              새 설문 시작하기
-            </Button>
-          </div>
-
-          <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
-            <h2 className="mb-1 text-sm font-semibold text-gray-700">이어서 진행</h2>
-            <p className="mb-4 text-xs text-gray-500">
-              이전에 발급받은 세션 토큰으로 이어서 진행합니다.
-            </p>
-            {sessionToken && tokenInput === sessionToken && (
-              <div className="mb-3 flex items-center justify-between rounded-md bg-blue-50 px-3 py-2">
-                <span className="text-xs text-blue-700">진행 중인 세션이 있습니다.</span>
-                <button
-                  onClick={handleClearSession}
-                  className="text-xs text-gray-400 hover:text-gray-600"
-                >
-                  초기화
-                </button>
-              </div>
-            )}
-            <input
-              type="text"
-              value={tokenInput}
-              onChange={(e) => {
-                setTokenInput(e.target.value);
-                setResumeError(null);
-              }}
-              placeholder="세션 토큰을 입력하세요"
-              className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-            />
-            {resumeError && (
-              <div className="mb-3">
-                <ErrorMessage message={resumeError} />
-              </div>
-            )}
             <Button
-              variant="secondary"
-              onClick={() => void handleResume()}
-              loading={isResuming}
+              variant={hasPendingSession ? 'secondary' : 'primary'}
+              onClick={() => void handleNewSession()}
+              loading={isCreating}
               className="w-full"
             >
-              이어서 진행하기
+              새 설문 시작하기
             </Button>
           </div>
         </div>
