@@ -22,9 +22,9 @@ export function validateAnswer(
 
   if (question.type === 'multiChoice') {
     const ids = answer.optionIds ?? [];
-    if (question.required && ids.length === 0) return { valid: false, error: '항목을 선택해주세요.' };
     if (question.minSelect !== undefined && ids.length < question.minSelect)
       return { valid: false, error: `최소 ${question.minSelect}개 이상 선택해주세요.` };
+    if (question.required && ids.length === 0) return { valid: false, error: '항목을 선택해주세요.' };
     if (question.maxSelect !== undefined && ids.length > question.maxSelect)
       return { valid: false, error: `최대 ${question.maxSelect}개까지 선택 가능합니다.` };
     const validSet = new Set(question.options?.map((o) => o.id) ?? []);
