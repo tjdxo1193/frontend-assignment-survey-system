@@ -87,4 +87,18 @@ describe('session.service', () => {
       submitAnswer({ questionId: 'q1', answer: { optionId: 'q1o2' } })
     ).rejects.toThrow();
   });
+
+  it('submitAnswer: 완료된 세션에 답변 시도 시 403 에러를 던진다', async () => {
+    // server.use()는 afterEach의 resetHandlers()로 자동 초기화되므로
+    // 이 테스트 내에서만 핸들러를 오버라이드한다
+    server.use(
+      http.post(`${BASE}/sessions/answers`, () =>
+        HttpResponse.json({ message: '이미 완료된 설문입니다.' }, { status: 403 })
+      )
+    );
+    setSessionToken('valid-token');
+    await expect(
+      submitAnswer({ questionId: 'q1', answer: { optionId: 'q1o1' } })
+    ).rejects.toThrow('이미 완료된 설문입니다.');
+  });
 });
