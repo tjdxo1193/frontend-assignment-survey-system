@@ -31,6 +31,26 @@ test.describe('설문 시작 및 진행', () => {
     await expect(page.getByText('가장 매력적인 기술 영역은?')).toBeVisible({ timeout: 5000 });
   });
 
+  test('multiChoice 복수 선택 후 다음 문항으로 이동한다', async ({ page }) => {
+    await page.getByRole('button', { name: '새 설문 시작하기' }).click();
+    await expect(page.getByText('우리 회사에 지원하는 주된 이유는 무엇인가요?')).toBeVisible({ timeout: 5000 });
+
+    await page.getByText('기술적 도전을 원해서').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('가장 매력적인 기술 영역은?')).toBeVisible({ timeout: 5000 });
+
+    await page.getByText('분산 시스템/고가용성').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('선호/숙련 스택을 고르세요.')).toBeVisible({ timeout: 5000 });
+
+    await expect(page.getByText(/1~5개 선택/)).toBeVisible();
+    await page.getByText('NestJS').click();
+    await page.getByText('Go', { exact: true }).click();
+    await page.getByRole('button', { name: '다음' }).click();
+
+    await expect(page.getByText('가장 깊이 파본 영역은?')).toBeVisible({ timeout: 5000 });
+  });
+
   test('required 문항에서 선택 없이 다음 클릭 시 검증 오류가 표시된다', async ({ page }) => {
     await page.getByRole('button', { name: '새 설문 시작하기' }).click();
     await expect(page.getByText('우리 회사에 지원하는 주된 이유는 무엇인가요?')).toBeVisible({ timeout: 5000 });
@@ -71,6 +91,100 @@ test.describe('세션 재개', () => {
     await page.getByRole('button', { name: '이어서 진행하기' }).click();
     await expect(page).toHaveURL('/survey');
     await expect(page.getByText('가장 매력적인 기술 영역은?')).toBeVisible({ timeout: 5000 });
+  });
+});
+
+test.describe('설문 완주 및 완료 처리', () => {
+  test('전체 문항을 답변하면 완료 페이지로 이동한다', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.removeItem('survey-session');
+      localStorage.removeItem('msw-mock-db');
+    });
+    await page.reload();
+
+    await page.getByRole('button', { name: '새 설문 시작하기' }).click();
+
+    // q1: singleChoice
+    await expect(page.getByText('우리 회사에 지원하는 주된 이유는 무엇인가요?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('기술적 도전을 원해서').click();
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q2_tech: singleChoice
+    await expect(page.getByText('가장 매력적인 기술 영역은?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('분산 시스템/고가용성').click();
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q3_tech_stack: multiChoice
+    await expect(page.getByText('선호/숙련 스택을 고르세요.')).toBeVisible({ timeout: 5000 });
+    await page.getByText('NestJS').click();
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q4_tech_depth: singleChoice
+    await expect(page.getByText('가장 깊이 파본 영역은?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('트랜잭션/락/쿼리 최적화').click();
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q5_example: text (required)
+    await expect(page.getByText('관련하여 직접 해결한 문제 사례를 간단히 적어주세요.')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('textbox').fill('캐시 무효화 문제를 해결했습니다.');
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q6_workstyle: text (required)
+    await expect(page.getByText('최근 6개월 내 일한 방식 중 스스로 잘했다 생각하는 사례는?')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('textbox').fill('데드라인 내 기능을 완성했습니다.');
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q7_values: multiChoice
+    await expect(page.getByText('우리 회사의 어떤 가치에 공감하시나요?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('고객집착').click();
+    await page.getByRole('button', { name: '다음' }).click();
+
+    // q8_final: text (optional) — 건너뛰기
+    await expect(page.getByText('마지막으로 하고 싶은 말이 있다면 자유롭게 작성해주세요.')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: '건너뛰기' }).click();
+
+    await expect(page).toHaveURL('/complete', { timeout: 5000 });
+    await expect(page.getByText('설문이 완료되었습니다!')).toBeVisible();
+  });
+
+  test('완료된 세션으로 /survey 접근 시 완료 페이지로 리다이렉트된다', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => {
+      localStorage.removeItem('survey-session');
+      localStorage.removeItem('msw-mock-db');
+    });
+    await page.reload();
+
+    await page.getByRole('button', { name: '새 설문 시작하기' }).click();
+    await expect(page.getByText('우리 회사에 지원하는 주된 이유는 무엇인가요?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('기술적 도전을 원해서').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('가장 매력적인 기술 영역은?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('분산 시스템/고가용성').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('선호/숙련 스택을 고르세요.')).toBeVisible({ timeout: 5000 });
+    await page.getByText('NestJS').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('가장 깊이 파본 영역은?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('트랜잭션/락/쿼리 최적화').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('관련하여 직접 해결한 문제 사례를 간단히 적어주세요.')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('textbox').fill('사례 입력');
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('최근 6개월 내 일한 방식 중 스스로 잘했다 생각하는 사례는?')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('textbox').fill('사례 입력');
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('우리 회사의 어떤 가치에 공감하시나요?')).toBeVisible({ timeout: 5000 });
+    await page.getByText('고객집착').click();
+    await page.getByRole('button', { name: '다음' }).click();
+    await expect(page.getByText('마지막으로 하고 싶은 말이 있다면 자유롭게 작성해주세요.')).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: '건너뛰기' }).click();
+    await expect(page).toHaveURL('/complete', { timeout: 5000 });
+
+    // 완료 후 /survey 직접 접근 시 /complete 유지
+    await page.goto('/survey');
+    await expect(page).toHaveURL('/complete', { timeout: 3000 });
   });
 });
 
