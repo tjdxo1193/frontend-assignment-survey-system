@@ -1,0 +1,4 @@
+/* Global overrides on top of Tailwind */
+* {
+  box-sizing: border-box;
+}
