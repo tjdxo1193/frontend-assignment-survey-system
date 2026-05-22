@@ -2,6 +2,7 @@ import { useSurveyStore } from '@/store/surveyStore';
 import type {
   CreateSessionResponseDto,
   GetSessionResponseDto,
+  Question,
   SubmitAnswerResponseDto,
 } from '@/types';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -102,5 +103,31 @@ describe('surveyStore', () => {
     expect(s.sessionId).toBeNull();
     expect(s.isCompleted).toBe(false);
     expect(s.answers).toHaveLength(0);
+  });
+
+  it('setCurrentQuestion sets currentQuestion', () => {
+    const q: Question = {
+      id: 'q1',
+      type: 'singleChoice',
+      text: '질문',
+      required: true,
+      options: [],
+    };
+    useSurveyStore.getState().setCurrentQuestion(q);
+    expect(useSurveyStore.getState().currentQuestion).toEqual(q);
+  });
+
+  it('setLoading updates isLoading', () => {
+    useSurveyStore.getState().setLoading(true);
+    expect(useSurveyStore.getState().isLoading).toBe(true);
+    useSurveyStore.getState().setLoading(false);
+    expect(useSurveyStore.getState().isLoading).toBe(false);
+  });
+
+  it('setError sets and clears error', () => {
+    useSurveyStore.getState().setError('오류 발생');
+    expect(useSurveyStore.getState().error).toBe('오류 발생');
+    useSurveyStore.getState().setError(null);
+    expect(useSurveyStore.getState().error).toBeNull();
   });
 });
