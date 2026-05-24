@@ -31,12 +31,28 @@ npm install
 npm run dev        # http://localhost:3001
 ```
 
-백엔드 없이 MSW 모킹으로 완전 동작합니다.
+백엔드 없이 MSW 모킹으로 완전 동작합니다.  
+앱을 켜면 Service Worker가 등록되고, 이후 모든 API 요청을 MSW가 가로채 응답합니다.
 
 ### 실제 백엔드 연결 시
 
+`.env` 파일을 수정하거나 환경변수를 직접 지정합니다.
+
 ```bash
-VITE_MOCK_API=false npm run dev
+# MSW 비활성화 + 실 서버 URL 지정
+VITE_MOCK_API=false VITE_API_BASE_URL=https://your-api.example.com npm run dev
+```
+
+| 환경변수 | 기본값 | 설명 |
+|----------|--------|------|
+| `VITE_API_BASE_URL` | `http://localhost:3000` | API 서버 주소 |
+| `VITE_SURVEY_ID` | `unitblack-join-survey` | 진행할 설문 ID |
+| `VITE_MOCK_API` | (미설정 = 활성) | `false`로 설정하면 MSW 비활성화 |
+
+`.env.example`을 복사해 `.env`로 사용하세요.
+
+```bash
+cp .env.example .env
 ```
 
 ---
@@ -74,9 +90,22 @@ Redux는 액션·리듀서·셀렉터 보일러플레이트가 크고, Context A
 
 페이지 전환이 세 개(홈 → 설문 → 완료)에 불과하지만, 미완료 세션 보호(`/survey` 진입 시 토큰 없으면 `/` 리다이렉트)와 완료 후 재답변 차단(`/complete` 고정)에 선언적 라우트가 명확하게 동작합니다. v7은 Data Router(loader/action)를 제공하지만 이번 과제에서는 서버 상태를 Zustand + API 서비스 레이어에서 관리하므로 기본 `<Routes>`만 사용했습니다.
 
-### 에러 처리 — Axios 응답 인터셉터 중앙화
+### 에러 처리 — Axios 응답 인터셉터 중앙화 + ApiError
 
-HTTP 에러를 각 서비스 함수에서 개별 처리하면 코드가 산재됩니다. Axios 인터셉터에서 상태 코드를 한 번에 받아 한글 메시지 `Error`로 변환한 뒤, 호출 측은 `try/catch`로만 받습니다. 401은 세션 초기화 + 홈 리다이렉트, 403은 완료 페이지 리다이렉트처럼 UX 분기가 필요한 경우에만 페이지 컴포넌트에서 추가 처리했습니다.
+HTTP 에러를 각 서비스 함수에서 개별 처리하면 코드가 산재됩니다. Axios 인터셉터에서 상태 코드를 한 번에 받아 `ApiError(message, status)` 객체로 변환해 던집니다. 호출 측은 `catch`에서 `status` 필드로 분기하므로 서버 메시지 문자열에 의존하지 않습니다.
+
+```ts
+// 인터셉터: 에러를 ApiError로 통일
+return Promise.reject(new ApiError(message, status));
+
+// 컴포넌트: status 코드로 분기 (문자열 매칭 없음)
+const { status, message } = err as ApiError;
+if (status === 403) { navigate('/complete'); return; }
+if (status === 401) { clearSession(); navigate('/'); return; }
+setError(message);
+```
+
+401은 세션 초기화 + 홈 리다이렉트, 403은 완료 페이지 리다이렉트처럼 UX 분기가 필요한 경우에만 페이지 컴포넌트에서 추가 처리했습니다.
 
 ### 분기 로직 — 클라이언트 유틸 + MSW 서버 양쪽 구현
 
