@@ -14,8 +14,8 @@ UnitBlack 프론트엔드 과제 제출입니다.
 |-------------------|-------------------|
 | ![Q1](src/capture/Q1_화면.png) | ![Q2](src/capture/Q2_화면.png) |
 
-| Q3 (multiChoice) | Q4 (singleChoice) |
-|------------------|-------------------|
+| Q3 (singleChoice) | Q4 (multiChoice) |
+|-------------------|------------------|
 | ![Q3](src/capture/Q3_화면.png) | ![Q4](src/capture/Q4_화면.png) |
 
 | Q5 (text) | 설문 완료 |
