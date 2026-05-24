@@ -1,13 +1,11 @@
 import { Button } from '@/components/common/Button';
 import { ErrorMessage } from '@/components/common/ErrorMessage';
-import type { Question } from '@/types';
+import type { AnswerPayload, Question } from '@/types';
 import { validateAnswer } from '@/utils/validation';
 import { useState } from 'react';
 import { MultiChoiceInput } from './MultiChoiceInput';
 import { SingleChoiceInput } from './SingleChoiceInput';
 import { TextInput } from './TextInput';
-
-type AnswerPayload = { optionId?: string; optionIds?: string[]; text?: string } | null;
 
 interface Props {
   question: Question;

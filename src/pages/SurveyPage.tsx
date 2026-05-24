@@ -2,30 +2,14 @@ import { ErrorMessage } from '@/components/common/ErrorMessage';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { ProgressBar } from '@/components/survey/ProgressBar';
 import { QuestionCard } from '@/components/survey/QuestionCard';
-import { setSessionToken } from '@/services/api';
+import { ApiError, setSessionToken } from '@/services/api';
 import { submitAnswer } from '@/services/session.service';
 import { fetchQuestion } from '@/services/survey.service';
 import { useSurveyStore } from '@/store/surveyStore';
-import type { Question, SessionAnswer } from '@/types';
+import type { AnswerPayload, Question, SessionAnswer } from '@/types';
+import { buildAnswerLabel } from '@/utils/label';
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-type AnswerPayload = { optionId?: string; optionIds?: string[]; text?: string } | null;
-
-function buildLabel(question: Question, payload: NonNullable<AnswerPayload>): string {
-  if (question.type === 'singleChoice' && payload.optionId) {
-    return question.options?.find((o) => o.id === payload.optionId)?.label ?? payload.optionId;
-  }
-  if (question.type === 'multiChoice' && payload.optionIds) {
-    return payload.optionIds
-      .map((id) => question.options?.find((o) => o.id === id)?.label ?? id)
-      .join(', ');
-  }
-  if (question.type === 'text' && payload.text !== undefined) {
-    return payload.text;
-  }
-  return '';
-}
 
 export function SurveyPage() {
   const navigate = useNavigate();
@@ -82,46 +66,40 @@ export function SurveyPage() {
     void loadQuestion(nextQuestionId);
   }, [nextQuestionId, isCompleted, currentQuestion, loadQuestion]);
 
-  const handleSubmit = async (payload: AnswerPayload) => {
-    if (!currentQuestion) return;
-    setError(null);
-    try {
-      const res = await submitAnswer({ questionId: currentQuestion.id, answer: payload });
+  const handleSubmit = useCallback(
+    async (payload: AnswerPayload) => {
+      if (!currentQuestion) return;
+      setError(null);
+      try {
+        const res = await submitAnswer({ questionId: currentQuestion.id, answer: payload });
 
-      const newAnswer: SessionAnswer | null = payload
-        ? {
-            questionId: currentQuestion.id,
-            questionText: currentQuestion.text,
-            answer: {
-              type: currentQuestion.type,
-              optionId: payload.optionId,
-              optionIds: payload.optionIds,
-              text: payload.text,
-              label: buildLabel(currentQuestion, payload),
-              submittedAt: res.submittedAt,
-            },
-          }
-        : null;
+        const newAnswer: SessionAnswer | null = payload
+          ? {
+              questionId: currentQuestion.id,
+              questionText: currentQuestion.text,
+              answer: {
+                type: currentQuestion.type,
+                optionId: payload.optionId,
+                optionIds: payload.optionIds,
+                text: payload.text,
+                label: buildAnswerLabel(currentQuestion.type, currentQuestion.options, payload),
+                submittedAt: res.submittedAt,
+              },
+            }
+          : null;
 
-      applySubmit(res, newAnswer as SessionAnswer);
+        applySubmit(res, newAnswer as SessionAnswer);
 
-      if (res.completed) {
-        navigate('/complete');
+        if (res.completed) navigate('/complete');
+      } catch (err) {
+        const { status, message } = err as ApiError;
+        if (status === 403) { navigate('/complete'); return; }
+        if (status === 401) { clearSession(); navigate('/'); return; }
+        setError(message);
       }
-    } catch (err) {
-      const message = (err as Error).message;
-      if (message.includes('완료된 설문')) {
-        navigate('/complete');
-        return;
-      }
-      if (message.includes('세션 토큰')) {
-        clearSession();
-        navigate('/');
-        return;
-      }
-      setError(message);
-    }
-  };
+    },
+    [currentQuestion, setError, applySubmit, navigate, clearSession]
+  );
 
   if (!sessionToken) return null;
 

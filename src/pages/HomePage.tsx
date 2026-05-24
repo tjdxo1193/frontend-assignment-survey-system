@@ -14,14 +14,11 @@ export function HomePage() {
   const { sessionToken, initSession, resumeSession, clearSession } = useSurveyStore();
 
   const [tokenInput, setTokenInput] = useState(sessionToken ?? '');
-  const [isCreating, setIsCreating] = useState(false);
-  const [isResuming, setIsResuming] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
-  const [resumeError, setResumeError] = useState<string | null>(null);
+  const [createState, setCreateState] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
+  const [resumeState, setResumeState] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
 
   const handleNewSession = async () => {
-    setCreateError(null);
-    setIsCreating(true);
+    setCreateState({ loading: true, error: null });
     try {
       const [session, survey] = await Promise.all([
         createSession({ surveyId: SURVEY_ID }),
@@ -31,20 +28,19 @@ export function HomePage() {
       initSession(session, survey.title);
       navigate('/survey');
     } catch (err) {
-      setCreateError((err as Error).message);
+      setCreateState({ loading: false, error: (err as Error).message });
     } finally {
-      setIsCreating(false);
+      setCreateState((s) => ({ ...s, loading: false }));
     }
   };
 
   const handleResume = async () => {
     const token = tokenInput.trim();
     if (!token) {
-      setResumeError('세션 토큰을 입력해주세요.');
+      setResumeState({ loading: false, error: '세션 토큰을 입력해주세요.' });
       return;
     }
-    setResumeError(null);
-    setIsResuming(true);
+    setResumeState({ loading: true, error: null });
     try {
       setSessionToken(token);
       const [session, survey] = await Promise.all([getSession(), fetchSurvey(SURVEY_ID)]);
@@ -53,16 +49,16 @@ export function HomePage() {
       navigate(session.isCompleted ? '/complete' : '/survey');
     } catch (err) {
       setSessionToken(sessionToken);
-      setResumeError((err as Error).message);
+      setResumeState({ loading: false, error: (err as Error).message });
     } finally {
-      setIsResuming(false);
+      setResumeState((s) => ({ ...s, loading: false }));
     }
   };
 
   const handleClearSession = () => {
     clearSession();
     setTokenInput('');
-    setResumeError(null);
+    setResumeState({ loading: false, error: null });
   };
 
   return (
@@ -92,12 +88,12 @@ export function HomePage() {
           <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
             <h2 className="mb-1 text-sm font-semibold text-gray-700">새 설문 시작</h2>
             <p className="mb-4 text-xs text-gray-500">새로운 세션을 생성하고 설문을 시작합니다.</p>
-            {createError && (
+            {createState.error && (
               <div className="mb-4">
-                <ErrorMessage message={createError} />
+                <ErrorMessage message={createState.error} />
               </div>
             )}
-            <Button onClick={() => void handleNewSession()} loading={isCreating} className="w-full">
+            <Button onClick={() => void handleNewSession()} loading={createState.loading} className="w-full">
               새 설문 시작하기
             </Button>
           </div>
@@ -123,20 +119,20 @@ export function HomePage() {
               value={tokenInput}
               onChange={(e) => {
                 setTokenInput(e.target.value);
-                setResumeError(null);
+                setResumeState((s) => ({ ...s, error: null }));
               }}
               placeholder="세션 토큰을 입력하세요"
               className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
             />
-            {resumeError && (
+            {resumeState.error && (
               <div className="mb-3">
-                <ErrorMessage message={resumeError} />
+                <ErrorMessage message={resumeState.error} />
               </div>
             )}
             <Button
               variant="secondary"
               onClick={() => void handleResume()}
-              loading={isResuming}
+              loading={resumeState.loading}
               className="w-full"
             >
               이어서 진행하기

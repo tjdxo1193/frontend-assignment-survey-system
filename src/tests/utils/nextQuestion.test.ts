@@ -8,6 +8,7 @@ const makeAnswer = (questionId: string, optionIds: string[]): SessionAnswer => (
   answer: { type: 'multiChoice', optionIds, submittedAt: '' },
 });
 
+
 describe('resolveNextQuestionId', () => {
   it('singleChoice: returns selected option nextQuestionId', () => {
     const q: Question = {

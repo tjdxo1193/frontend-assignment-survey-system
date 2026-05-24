@@ -2,31 +2,13 @@ import { SAMPLE_SURVEY } from '@/data/surveys.data';
 import { mockDb } from '@/mocks/db';
 import type { SubmitAnswerRequestDto } from '@/types';
 import { resolveNextQuestionId } from '@/utils/nextQuestion';
+import { buildAnswerLabel } from '@/utils/label';
 import { http, HttpResponse } from 'msw';
 
 const BASE = 'http://localhost:3000';
 
 function getToken(request: Request): string | null {
   return request.headers.get('X-Session-Token');
-}
-
-function computeLabel(
-  question: (typeof SAMPLE_SURVEY.questions)[number],
-  answer: SubmitAnswerRequestDto['answer']
-): string {
-  if (!answer) return '';
-  if (question.type === 'singleChoice' && answer.optionId) {
-    return question.options?.find((o) => o.id === answer.optionId)?.label ?? answer.optionId;
-  }
-  if (question.type === 'multiChoice' && answer.optionIds) {
-    return answer.optionIds
-      .map((id) => question.options?.find((o) => o.id === id)?.label ?? id)
-      .join(', ');
-  }
-  if (question.type === 'text' && answer.text !== undefined) {
-    return answer.text;
-  }
-  return '';
 }
 
 export const sessionHandlers = [
@@ -140,7 +122,7 @@ export const sessionHandlers = [
               optionId: answer.optionId,
               optionIds: answer.optionIds,
               text: answer.text,
-              label: computeLabel(question, answer),
+              label: buildAnswerLabel(question.type, question.options, answer),
               submittedAt,
             },
           }
