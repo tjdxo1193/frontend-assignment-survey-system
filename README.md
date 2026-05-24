@@ -150,7 +150,7 @@ src/
 
 - `POST /sessions`로 발급받은 `sessionToken`을 Zustand `persist` 미들웨어가 localStorage에 저장
 - 페이지 재진입 시 저장된 토큰으로 `GET /sessions` 호출 → 이어서 진행 가능
-- 토큰 입력 UI로 다른 기기/브라우저에서 발급받은 세션도 재개 가능
+- 토큰 입력 UI로 세션 토큰을 직접 입력해 이어서 진행 가능
 
 ### 조건부 분기 (nextQuestion)
 
@@ -192,5 +192,5 @@ q5_example
 | 멀티 탭 미지원          | 같은 브라우저에서 두 탭을 동시에 열면 Zustand persist 상태가 충돌할 수 있습니다. `storage` 이벤트 리스너로 탭 간 동기화를 추가하면 해결됩니다.                                                                                              |
 | 런타임 스키마 검증 없음 | Zod 등의 런타임 검증 없이 서버 응답을 TypeScript 타입으로 단언합니다. 실 서버와 계약이 바뀌면 런타임 오류가 발생할 수 있습니다.                                                                                                             |
 | MSW mockDb 직렬화       | E2E 테스트에서 페이지 새로고침 후 세션 재개를 검증하기 위해 MSW 인메모리 DB를 localStorage에 직렬화했습니다. 이로 인해 테스트 간 격리에 `removeItem` 초기화가 필요합니다.                                                                   |
-| 세션 토큰 직접 입력 UI  | Notion 요구사항에 "생성 시점에 발급받은 Session token을 이용하며, 같은 token을 사용하면 같은 Session을 계속 활용할 수 있다"고 명시되어 있어 토큰 직접 입력 UI를 구현했습니다. 이를 통해 다른 기기·브라우저에서도 세션을 재개할 수 있습니다. |
+| 세션 토큰 직접 입력 UI  | Notion 요구사항에 "생성 시점에 발급받은 Session token을 이용하며, 같은 token을 사용하면 같은 Session을 계속 활용할 수 있다"고 명시되어 있어 토큰 직접 입력 UI를 구현했습니다. |
 
