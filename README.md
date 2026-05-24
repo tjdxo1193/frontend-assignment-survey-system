@@ -60,8 +60,9 @@ cp .env.example .env
 ## 테스트
 
 ```bash
-npm test           # Vitest 단위/통합 테스트
-npm run test:e2e   # Playwright E2E 테스트
+npm test                        # Vitest 단위/통합 테스트
+npx playwright install chromium # E2E 최초 1회 브라우저 설치
+npm run test:e2e                # Playwright E2E 테스트 (dev 서버 자동 실행)
 ```
 
 ---
