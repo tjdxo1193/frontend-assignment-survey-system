@@ -1,11 +1,12 @@
 import { SAMPLE_SURVEY } from '@/data/surveys.data';
 import { mockDb } from '@/mocks/db';
 import type { SubmitAnswerRequestDto } from '@/types';
-import { resolveNextQuestionId } from '@/utils/nextQuestion';
 import { buildAnswerLabel } from '@/utils/label';
+import { resolveNextQuestionId } from '@/utils/nextQuestion';
+import { API_BASE_URL } from '@/constants/env';
 import { http, HttpResponse } from 'msw';
 
-const BASE = 'http://localhost:3000';
+const BASE = API_BASE_URL;
 
 function getToken(request: Request): string | null {
   return request.headers.get('X-Session-Token');

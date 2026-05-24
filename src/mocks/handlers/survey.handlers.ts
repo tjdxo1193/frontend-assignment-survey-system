@@ -1,7 +1,8 @@
 import { SAMPLE_SURVEY } from '@/data/surveys.data';
+import { API_BASE_URL } from '@/constants/env';
 import { http, HttpResponse } from 'msw';
 
-const BASE = 'http://localhost:3000';
+const BASE = API_BASE_URL;
 
 export const surveyHandlers = [
   http.get(`${BASE}/surveys/:surveyId`, ({ params }) => {

@@ -1,5 +1,6 @@
 import { Button } from '@/components/common/Button';
 import { ErrorMessage } from '@/components/common/ErrorMessage';
+import { SURVEY_ID } from '@/constants/env';
 import { setSessionToken } from '@/services/api';
 import { createSession, getSession } from '@/services/session.service';
 import { fetchSurvey } from '@/services/survey.service';
@@ -7,15 +8,19 @@ import { useSurveyStore } from '@/store/surveyStore';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const SURVEY_ID = 'unitblack-join-survey';
-
 export function HomePage() {
   const navigate = useNavigate();
   const { sessionToken, initSession, resumeSession, clearSession } = useSurveyStore();
 
   const [tokenInput, setTokenInput] = useState(sessionToken ?? '');
-  const [createState, setCreateState] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
-  const [resumeState, setResumeState] = useState<{ loading: boolean; error: string | null }>({ loading: false, error: null });
+  const [createState, setCreateState] = useState<{ loading: boolean; error: string | null }>({
+    loading: false,
+    error: null,
+  });
+  const [resumeState, setResumeState] = useState<{ loading: boolean; error: string | null }>({
+    loading: false,
+    error: null,
+  });
 
   const handleNewSession = async () => {
     setCreateState({ loading: true, error: null });
@@ -93,7 +98,11 @@ export function HomePage() {
                 <ErrorMessage message={createState.error} />
               </div>
             )}
-            <Button onClick={() => void handleNewSession()} loading={createState.loading} className="w-full">
+            <Button
+              onClick={() => void handleNewSession()}
+              loading={createState.loading}
+              className="w-full"
+            >
               새 설문 시작하기
             </Button>
           </div>
