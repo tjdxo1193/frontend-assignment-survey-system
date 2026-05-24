@@ -10,9 +10,17 @@ UnitBlack 프론트엔드 과제 제출입니다.
 |--------|---------|
 | ![홈 화면](src/capture/첫화면.png) | ![세션 재개](src/capture/이어서하기_토큰.png) |
 
-| 문항 진행 (singleChoice) | 설문 완료 |
-|------------------------|---------|
-| ![문항 진행](src/capture/Q1_화면.png) | ![설문 완료](src/capture/설문완료_화면.png) |
+| Q1 (singleChoice) | Q2 (singleChoice) |
+|-------------------|-------------------|
+| ![Q1](src/capture/Q1_화면.png) | ![Q2](src/capture/Q2_화면.png) |
+
+| Q3 (multiChoice) | Q4 (singleChoice) |
+|------------------|-------------------|
+| ![Q3](src/capture/Q3_화면.png) | ![Q4](src/capture/Q4_화면.png) |
+
+| Q5 (text) | 설문 완료 |
+|-----------|---------|
+| ![Q5](src/capture/Q5_화면.png) | ![설문 완료](src/capture/설문완료_화면.png) |
 
 ---
 
