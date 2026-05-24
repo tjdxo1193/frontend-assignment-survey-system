@@ -136,8 +136,11 @@ src/
 ├── store/           # Zustand 전역 상태 (세션 + 설문 흐름)
 ├── services/        # Axios API 클라이언트 + survey/session 서비스
 ├── mocks/           # MSW 핸들러 + 인메모리 세션 DB
+├── constants/
+│   └── env.ts       # 환경변수 기반 상수 단일 출처 (API URL, 설문 ID)
 ├── utils/
 │   ├── nextQuestion.ts  # 분기 로직 (singleChoice, multiChoice, conditional next[])
+│   ├── label.ts         # 답변 라벨 생성 유틸 (선택지 ID → 표시 텍스트)
 │   └── validation.ts    # 답변 유효성 검사
 └── types/           # API DTO 타입 정의
 ```
