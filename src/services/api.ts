@@ -1,5 +1,15 @@
 import axios from 'axios';
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public readonly status?: number
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 export const apiClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000',
   headers: { 'Content-Type': 'application/json' },
@@ -22,9 +32,9 @@ apiClient.interceptors.response.use(
         serverMsg ??
         (status ? ERROR_MESSAGES[status] : undefined) ??
         '네트워크 오류가 발생했습니다. 다시 시도해 주세요.';
-      return Promise.reject(new Error(message));
+      return Promise.reject(new ApiError(message, status));
     }
-    return Promise.reject(new Error('네트워크 오류가 발생했습니다. 다시 시도해 주세요.'));
+    return Promise.reject(new ApiError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.'));
   }
 );
 

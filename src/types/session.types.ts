@@ -35,13 +35,15 @@ export interface GetSessionResponseDto {
   answers: SessionAnswer[];
 }
 
+export type AnswerPayload = {
+  optionId?: string;
+  optionIds?: string[];
+  text?: string;
+} | null;
+
 export interface SubmitAnswerRequestDto {
   questionId: string;
-  answer: {
-    optionId?: string;
-    optionIds?: string[];
-    text?: string;
-  } | null;
+  answer: AnswerPayload;
 }
 
 export interface SubmitAnswerResponseDto {
